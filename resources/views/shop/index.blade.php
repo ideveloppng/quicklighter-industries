@@ -30,7 +30,14 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
                 @forelse($products as $product)
                 @php $qty = isset(session('cart', [])[$product->id]) ? session('cart', [])[$product->id]['quantity'] : 0; @endphp
-                <div class="flex flex-col group" x-data="{ added: false, qty: {{ $qty }}, async add() { this.added = true; const data = await window.addToCart({{ $product->id }}); this.qty = data.itemQuantity; setTimeout(() => this.added = false, 2000); } }">
+                <div class="flex flex-col group" x-data="{ 
+                        added: false, 
+                        async add() { 
+                            this.added = true; 
+                            await window.addToCart({{ $product->id }}); 
+                            setTimeout(() => this.added = false, 2000); 
+                        } 
+                    }">
                     <a href="{{ route('shop.show', $product->slug) }}" class="relative aspect-square bg-slate-100 border border-slate-100 overflow-hidden mb-6 block shadow-sm">
                         <div x-show="qty > 0" x-cloak class="absolute top-3 right-3 z-30 bg-brand-orange text-white px-2 py-1 font-black text-[8px] tracking-tighter shadow-xl">Qty: <span x-text="qty"></span></div>
                         <img src="{{ asset('storage/' . ($product->images[0] ?? '')) }}" class="w-full h-full object-cover group-hover:scale-105 transition-all">

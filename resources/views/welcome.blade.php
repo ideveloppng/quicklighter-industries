@@ -200,16 +200,11 @@
 
                 <div class="flex flex-col group" x-data="{ 
                         added: false, 
-                        qty: {{ $initialQty }},
-                        async add() {
-                            this.added = true;
-                            // The addToCart JS function now returns the full cart data
-                            const data = await window.addToCart({{ $product->id }});
-                            this.qty = data.itemQuantity;
-                            
-                            // This will trigger the global @cart-updated listener in app.blade.php
-                            setTimeout(() => this.added = false, 2000);
-                        }
+                        async add() { 
+                            this.added = true; 
+                            await window.addToCart({{ $product->id }}); 
+                            setTimeout(() => this.added = false, 2000); 
+                        } 
                     }">
                     <a href="{{ route('shop.show', $product->slug) }}" class="relative aspect-square overflow-hidden bg-white border border-slate-100 block">
                         <!-- QUANTITY BADGE -->

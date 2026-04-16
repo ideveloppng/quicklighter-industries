@@ -32,13 +32,44 @@ class CartController extends Controller
 
         session()->put('cart', $cart);
         
-        // Return full cart data for Alpine to render instantly
+        $total = array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cart));
+
         return response()->json([
-            'message' => 'Success',
-            'cart' => array_values($cart), // Convert to array for Javascript
+            'cart' => array_values($cart),
             'cartCount' => count($cart),
-            'itemQuantity' => $cart[$id]['quantity'],
-            'total' => number_format(array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cart)))
+            'itemName' => $product->name,
+            'total' => number_format($total)
+        ]);
+    }
+
+    /**
+     * FIXED: AJAX Update logic for Toast and Sidebar
+     */
+    public function updateQuantity(Request $request)
+    {
+        $cart = session()->get('cart', []);
+        $id = $request->id;
+        $action = $request->action;
+
+        if(isset($cart[$id])) {
+            if($action === 'inc') {
+                $cart[$id]['quantity']++;
+            } else {
+                if($cart[$id]['quantity'] > 1) {
+                    $cart[$id]['quantity']--;
+                } else {
+                    unset($cart[$id]);
+                }
+            }
+            session()->put('cart', $cart);
+        }
+
+        $total = array_sum(array_map(fn($item) => $item['price'] * $item['quantity'], $cart));
+
+        return response()->json([
+            'cart' => array_values($cart),
+            'cartCount' => count($cart),
+            'total' => number_format($total)
         ]);
     }
 
@@ -48,7 +79,7 @@ class CartController extends Controller
             $cart[$request->id]["quantity"] = $request->quantity;
             session()->put('cart', $cart);
         }
-        return back()->with('success', 'Registry Updated');
+        return back();
     }
 
     public function remove(Request $request) {
@@ -59,6 +90,6 @@ class CartController extends Controller
                 session()->put('cart', $cart);
             }
         }
-        return back()->with('success', 'Unit Removed');
+        return back();
     }
 }
